@@ -10,7 +10,6 @@ public:
   counting(){
     count = 0;
   }
-
   void add(){
     count++;
   }
@@ -32,8 +31,8 @@ public:
     reference = new counting();
   }
 
-  sharedPointer(dataType & value){
-    pointer = &value;
+  sharedPointer(dataType* value){
+    pointer = value;
     reference = new counting();
     reference->add();
   }
@@ -51,8 +50,8 @@ public:
     }
   }
 
-  dataType get(){
-    return *pointer;
+  dataType * get(){
+    return pointer;
   }
 
   dataType & operator*(){
@@ -78,12 +77,18 @@ public:
 };
 
 int main(){
-  int x = 15;
-  int y = 30;
-  sharedPointer<int> entero(x);
-  sharedPointer<int> entero2;
-  entero2 = entero;
-  cout << entero.get() << endl;
-  cout << entero2.get() << endl;
+  sharedPointer<int> p(new int);
+  sharedPointer<int> q(new int);
+  *p = 14;
+  *q = 5;
+  cout << p.get() << endl;
+  cout << *p << endl;
+  cout << q.get() << endl;
+  cout << *q << endl;
+  q = p;
+  cout << q.get() << endl;
+  cout << *p << endl;
+  cout << p.get() << endl;
+  cout << *q << endl;
   return 0;
 }

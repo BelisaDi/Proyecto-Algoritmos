@@ -11,8 +11,8 @@ public:
     pointer = nullptr;
   }
 
-  uniquePointer(dataType & value){
-    pointer = &value;
+  uniquePointer(dataType* value){
+    pointer = value;
   }
 
   uniquePointer(uniquePointer<dataType> && src){
@@ -36,8 +36,8 @@ public:
     return pointer;
   }
 
-  dataType get(){
-    return *pointer;
+  dataType * get(){
+    return pointer;
   }
 
   dataType * release(){
@@ -59,18 +59,25 @@ public:
   uniquePointer<dataType> & operator=(uniquePointer<dataType> & src){
     if(this != &src){
       pointer = src.pointer;
-      src.pointer = nullptr;
+      src.pointer = 0;
       return *this;
     }
+    return *this;
   }
 };
 
 int main(){
-  int x = 15;
-  int y = 30;
-  uniquePointer<int> entero(x);
-  uniquePointer<int> enteroprima(*entero);
-  cout << enteroprima.get() << endl;
-  cout << entero.get() << endl;
+  uniquePointer<int> p(new int);
+  uniquePointer<int> q(new int);
+  *p = 14;
+  cout << p.get() << endl;
+  cout << *p << endl;
+  cout << q.get() << endl;
+  cout << *q << endl;
+  q = p;
+  cout << q.get() << endl;
+  //cout << *p << endl;
+  cout << p.get() << endl;
+  cout << *q << endl;
   return 0;
 }
