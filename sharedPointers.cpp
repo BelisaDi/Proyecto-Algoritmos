@@ -1,94 +1,77 @@
-#include <iostream>
-using namespace std;
+#ifdef _sharedPointers_hpp_
 
-//CONTEO DE REFERENCIA
-class counting{
-private:
-  size_t count;
-
-public:
-  counting(){
-    count = 0;
-  }
-  void add(){
-    count++;
-  }
-  size_t release(){
-    return count--;
-  }
-};
-
-//SHARED POINTERS
 template <typename dataType>
-class sharedPointer{
-private:
-  dataType *pointer;
-  counting *reference;
-
-public:
-  sharedPointer(){
-    pointer = nullptr;
-    reference = new counting();
-  }
-
-  sharedPointer(dataType* value){
-    pointer = value;
-    reference = new counting();
-    reference->add();
-  }
-
-  sharedPointer(const sharedPointer<dataType> & src){
-    pointer = src.pointer;
-    reference = src.reference;
-    reference->add();
-  }
-
-  ~sharedPointer(){
-    if(reference->release() == 0){
-      delete pointer;
-      delete reference;
-    }
-  }
-
-  dataType * get(){
-    return pointer;
-  }
-
-  dataType & operator*(){
-    return *pointer;
-  }
-
-  dataType * operator->(){
-    return pointer;
-  }
-
-  sharedPointer<dataType> & operator=(const sharedPointer<dataType> & src){
-    if(this != &src){
-      if(reference->release() == 0){
-        delete pointer;
-        delete reference;
-      }
-      pointer = src.pointer;
-      reference = src.reference;
-      reference->add();
-    }
-    return *this;
-  }
-};
-
-int main(){
-  sharedPointer<int> p(new int);
-  sharedPointer<int> q(new int);
-  *p = 14;
-  *q = 5;
-  cout << p.get() << endl;
-  cout << *p << endl;
-  cout << q.get() << endl;
-  cout << *q << endl;
-  q = p;
-  cout << q.get() << endl;
-  cout << *p << endl;
-  cout << p.get() << endl;
-  cout << *q << endl;
-  return 0;
+sharedPointer<dataType>::sharedPointer(){
+  pointer = nullptr;
+  ref_count = 0;
 }
+
+template <typename dataType>
+sharedPointer<dataType>::sharedPointer(dataType *value){
+  pointer = value;
+  ref_count = 1;
+}
+
+template <typename dataType>
+sharedPointer<dataType>::sharedPointer(const sharedPointer<dataType> & src){
+  pointer = src.pointer;
+  ref_count = src.ref_count;
+  ref_count++;
+}
+
+template <typename dataType>
+sharedPointer<dataType>::~sharedPointer(){
+  if(pointer != nullptr){
+    --ref_count;
+    if(ref_count == 0){
+      delete pointer;
+    }
+  }
+}
+
+template <typename dataType>
+dataType * sharedPointer<dataType>::get() const{
+  return pointer;
+}
+
+template <typename dataType>
+void sharedPointer<dataType>::reset(){
+  delete pointer;
+  ref_count = 0;
+  pointer = nullptr;
+}
+
+template <typename dataType>
+void sharedPointer<dataType>::swap(sharedPointer<dataType> & other){
+  dataType *tmp = pointer;
+  unsigned int tmp_ref = ref_count;
+  pointer = other.pointer;
+  ref_count = other.ref_count;
+  other.pointer = tmp;
+  other.ref_count = tmp_ref;
+}
+
+template <typename dataType>
+dataType & sharedPointer<dataType>::operator*(){
+  return *pointer;
+}
+
+template <typename dataType>
+dataType * sharedPointer<dataType>::operator->(){
+  return pointer;
+}
+
+template <typename dataType>
+sharedPointer<dataType> & sharedPointer<dataType>::operator=(const sharedPointer<dataType> & src){
+  if(this != &src){
+    if((--ref_count) == 0){
+      delete pointer;
+    }
+    pointer = src.pointer;
+    ref_count = src.ref_count;
+    ref_count++;
+  }
+  return *this;
+}
+
+#endif //_sharedPointers_hpp_

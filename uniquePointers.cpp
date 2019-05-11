@@ -1,83 +1,76 @@
-#include <iostream>
-using namespace std;
+#ifdef _uniquePointers_hpp
 
 template <typename dataType>
-class uniquePointer{
-private:
-  dataType *pointer;
+uniquePointer<dataType>::uniquePointer(){
+  pointer = nullptr;
+}
 
-public:
-  uniquePointer(){
-    pointer = nullptr;
+template <typename dataType>
+uniquePointer<dataType>::uniquePointer(dataType* value){
+  pointer = value;
+}
+
+template <typename dataType>
+uniquePointer<dataType>::uniquePointer(uniquePointer<dataType> && src){
+  if(this != &src){
+    pointer = src.pointer;
+    delete src.pointer;
   }
+}
 
-  uniquePointer(dataType* value){
-    pointer = value;
+template <typename dataType>
+uniquePointer<dataType>::~uniquePointer(){
+  if(pointer != nullptr){
+    delete pointer;
   }
+}
 
-  uniquePointer(uniquePointer<dataType> && src){
-    if(this != &src){
-      pointer = src.pointer;
-      delete src.pointer;
-    }
-  }
+template <typename dataType>
+dataType & uniquePointer<dataType>::operator*(){
+  return *pointer;
+}
 
-  ~uniquePointer(){
+template <typename dataType>
+dataType * uniquePointer<dataType>::operator->(){
+  return pointer;
+}
+
+template <typename dataType>
+dataType * uniquePointer<dataType>::get() const{
+  return pointer;
+}
+
+template <typename dataType>
+dataType * uniquePointer<dataType>::release(){
+  dataType *newPointer = pointer;
+  pointer = nullptr;
+  return newPointer;
+}
+
+template <typename dataType>
+void uniquePointer<dataType>::reset(){
+  delete pointer;
+  pointer = nullptr;
+}
+
+template <typename dataType>
+void uniquePointer<dataType>::swap(uniquePointer<dataType> & other){
+  dataType *tmp = pointer;
+  pointer = other.pointer;
+  other.pointer = tmp;
+}
+
+template <typename dataType>
+uniquePointer<dataType> & uniquePointer<dataType>::operator=(uniquePointer<dataType> & src){
+  if(this != &src){
     if(pointer != nullptr){
       delete pointer;
     }
-  }
-
-  dataType & operator*(){
-    return *pointer;
-  }
-
-  dataType * operator->(){
-    return pointer;
-  }
-
-  dataType * get(){
-    return pointer;
-  }
-
-  dataType * release(){
-    dataType *newPointer = pointer;
-    delete pointer;
-    return newPointer;
-  }
-
-  void reset(){
-    delete pointer;
-  }
-
-  void swap(uniquePointer<dataType> & other){
-    dataType *tmp = pointer;
-    pointer = other.pointer;
-    other.pointer = tmp;
-  }
-
-  uniquePointer<dataType> & operator=(uniquePointer<dataType> & src){
-    if(this != &src){
-      pointer = src.pointer;
-      src.pointer = 0;
-      return *this;
-    }
+    pointer = src.pointer;
+    src.pointer = nullptr;
     return *this;
   }
-};
-
-int main(){
-  uniquePointer<int> p(new int);
-  uniquePointer<int> q(new int);
-  *p = 14;
-  cout << p.get() << endl;
-  cout << *p << endl;
-  cout << q.get() << endl;
-  cout << *q << endl;
-  q = p;
-  cout << q.get() << endl;
-  //cout << *p << endl;
-  cout << p.get() << endl;
-  cout << *q << endl;
-  return 0;
+  return *this;
 }
+
+#endif //_uniquePointers_hpp
