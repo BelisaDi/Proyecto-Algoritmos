@@ -37,20 +37,32 @@ dataType * uniquePointer<dataType>::operator->(){
 
 template <typename dataType>
 dataType * uniquePointer<dataType>::get() const{
-  return pointer;
+  if(pointer != nullptr){
+    return pointer;
+  }
+  else{
+    return nullptr;
+  }
 }
 
 template <typename dataType>
 dataType * uniquePointer<dataType>::release(){
-  dataType *newPointer = pointer;
-  pointer = nullptr;
-  return newPointer;
+  if(pointer != nullptr){
+    dataType * nPointer = pointer;
+    pointer = nullptr;
+    return nPointer;
+  }
+  else{
+    return nullptr;
+  }
 }
 
 template <typename dataType>
 void uniquePointer<dataType>::reset(){
-  delete pointer;
-  pointer = nullptr;
+  if(pointer != nullptr){
+    delete pointer;
+    pointer = nullptr;
+  }
 }
 
 template <typename dataType>

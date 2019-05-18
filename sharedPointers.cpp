@@ -36,9 +36,13 @@ dataType * sharedPointer<dataType>::get() const{
 
 template <typename dataType>
 void sharedPointer<dataType>::reset(){
-  delete pointer;
-  ref_count = 0;
-  pointer = nullptr;
+  if(pointer != nullptr){
+    --ref_count;
+    if(ref_count == 0){
+      delete pointer;
+    }
+    pointer = nullptr;
+  }
 }
 
 template <typename dataType>
